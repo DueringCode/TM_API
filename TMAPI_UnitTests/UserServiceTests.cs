@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TMAPI_Backend.Data;
 using TMAPI_Backend.DTOs.Users;
+using TMAPI_Backend.Models;
 using TMAPI_Backend.Services;
 using Xunit;
 
@@ -30,6 +31,31 @@ namespace TMAPI_UnitTests
             };
 
             Assert.Throws<ArgumentException>(() => service.Register(request));
+        }
+
+        [Fact]
+        public void Register_ShouldThrowException_WhenEmailAlreadyExists()
+        {
+            var dbContext = CreateDbContext();
+
+            dbContext.Users.Add(new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "test@test.de",
+                PasswordHash = "123456"
+            });
+
+            dbContext.SaveChanges();
+
+            var service = new UserService(dbContext);
+
+            var request = new RegisterUserRequest
+            {
+                Email = "test@test.de",
+                Password = "abcdef"
+            };
+
+            Assert.Throws<InvalidOperationException>(() => service.Register(request));
         }
     }
 }
