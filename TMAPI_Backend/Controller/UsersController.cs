@@ -32,5 +32,23 @@ namespace TMAPI_Backend.Controllers
                 return Conflict(new { message = exception.Message });
             }
         }
+
+        [HttpPost("login")]
+        public ActionResult<UserResponse> Login(LoginUserRequest request)
+        {
+            try
+            {
+                UserResponse user = _userService.Login(request);
+                return Ok(user);
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(new { message = exception.Message });
+            }
+            catch (InvalidOperationException exception)
+            {
+                return Unauthorized(new { message = exception.Message });
+            }
+        }
     }
 }

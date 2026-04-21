@@ -57,5 +57,48 @@ namespace TMAPI_UnitTests
 
             Assert.Throws<InvalidOperationException>(() => service.Register(request));
         }
+
+        [Fact]
+        public void Login_ShouldThrowException_WhenEmailDoesNotExist()
+        {
+            var dbContext = CreateDbContext();
+            var service = new UserService(dbContext);
+
+            var request = new LoginUserRequest
+            {
+                Email = "missing@test.de",
+                Password = "123456"
+            };
+
+            Assert.Throws<InvalidOperationException>(() => service.Login(request));
+        }
+
+        [Fact]
+        public void Login_ShouldReturnUserResponse_WhenCredentialsAreValid()
+        {
+            var dbContext = CreateDbContext();
+
+            dbContext.Users.Add(new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "test@test.de",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("123456")
+            });
+
+            dbContext.SaveChanges();
+
+            var service = new UserService(dbContext);
+
+            var request = new LoginUserRequest
+            {
+                Email = "test@test.de",
+                Password = "123456"
+            };
+
+            var result = service.Login(request);
+
+            Assert.NotNull(result);
+            Assert.Equal("test@test.de", result.Email);
+        }
     }
 }
