@@ -1,1 +1,4 @@
-<Solution />
+<Solution>
+  <Project Path="TMAPI_Backend/TMAPI_Backend.csproj" />
+  <Project Path="TMAPI_UnitTests/TMAPI_UnitTests.csproj" />
+</Solution>
