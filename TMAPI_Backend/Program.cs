@@ -14,6 +14,7 @@ namespace TMAPI_Backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<TaskService>();
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
