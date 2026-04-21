@@ -1,5 +1,6 @@
-﻿using TMAPI_Backend.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using TMAPI_Backend.Data;
+using TMAPI_Backend.Services;
 
 namespace TMAPI_Backend
 {
@@ -12,6 +13,7 @@ namespace TMAPI_Backend
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<UserService>();
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
