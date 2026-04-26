@@ -14,10 +14,11 @@ namespace TMAPI_Backend
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<TaskService>();
-           
             builder.Services.AddScoped<JwtService>();
+
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
             builder.Services.AddDbContext<AppDbContext>(options =>
@@ -32,8 +33,10 @@ namespace TMAPI_Backend
             }
 
             app.UseHttpsRedirection();
+
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.MapControllers();
 
             app.Run();

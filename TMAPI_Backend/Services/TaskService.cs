@@ -31,13 +31,18 @@ namespace TMAPI_Backend.Services
             return tasks;
         }
 
-        public TaskResponse GetById(Guid id)
+        public TaskResponse GetById(Guid id, Guid userId)
         {
-            TaskItem? task = _dbContext.Tasks.FirstOrDefault(task => task.Id == id);
+            TaskItem? task = _dbContext.Tasks.FirstOrDefault(t => t.Id == id);
 
             if (task is null)
             {
                 throw new InvalidOperationException("Task not found.");
+            }
+
+            if (task.UserId != userId)
+            {
+                throw new UnauthorizedAccessException("Access denied.");
             }
 
             return new TaskResponse
@@ -51,14 +56,14 @@ namespace TMAPI_Backend.Services
             };
         }
 
-        public TaskResponse Create(CreateTaskRequest request)
+        public TaskResponse Create(Guid userId, CreateTaskRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Title))
             {
                 throw new ArgumentException("Title is required.");
             }
 
-            bool userExists = _dbContext.Users.Any(user => user.Id == request.UserId);
+            bool userExists = _dbContext.Users.Any(user => user.Id == userId);
 
             if (!userExists)
             {
@@ -72,7 +77,7 @@ namespace TMAPI_Backend.Services
                 Description = request.Description,
                 Status = Models.TaskStatus.Todo,
                 CreatedAt = DateTime.UtcNow,
-                UserId = request.UserId
+                UserId = userId
             };
 
             _dbContext.Tasks.Add(task);
@@ -89,18 +94,23 @@ namespace TMAPI_Backend.Services
             };
         }
 
-        public TaskResponse Update(Guid id, UpdateTaskRequest request)
+        public TaskResponse Update(Guid id, Guid userId, UpdateTaskRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Title))
             {
                 throw new ArgumentException("Title is required.");
             }
 
-            TaskItem? task = _dbContext.Tasks.FirstOrDefault(task => task.Id == id);
+            TaskItem? task = _dbContext.Tasks.FirstOrDefault(t => t.Id == id);
 
             if (task is null)
             {
                 throw new InvalidOperationException("Task not found.");
+            }
+
+            if (task.UserId != userId)
+            {
+                throw new UnauthorizedAccessException("Access denied.");
             }
 
             task.Title = request.Title;
@@ -120,13 +130,18 @@ namespace TMAPI_Backend.Services
             };
         }
 
-        public void Delete(Guid id)
+        public void Delete(Guid id, Guid userId)
         {
-            TaskItem? task = _dbContext.Tasks.FirstOrDefault(task => task.Id == id);
+            TaskItem? task = _dbContext.Tasks.FirstOrDefault(t => t.Id == id);
 
             if (task is null)
             {
                 throw new InvalidOperationException("Task not found.");
+            }
+
+            if (task.UserId != userId)
+            {
+                throw new UnauthorizedAccessException("Access denied.");
             }
 
             _dbContext.Tasks.Remove(task);

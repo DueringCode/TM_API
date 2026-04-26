@@ -61,11 +61,10 @@ namespace TMAPI_UnitTests
             var request = new CreateTaskRequest
             {
                 Title = "",
-                Description = "Description",
-                UserId = user.Id
+                Description = "Description"
             };
 
-            Assert.Throws<ArgumentException>(() => service.Create(request));
+            Assert.Throws<ArgumentException>(() => service.Create(user.Id, request));
         }
 
         [Fact]
@@ -77,11 +76,10 @@ namespace TMAPI_UnitTests
             var request = new CreateTaskRequest
             {
                 Title = "My Task",
-                Description = "Description",
-                UserId = Guid.NewGuid()
+                Description = "Description"
             };
 
-            Assert.Throws<InvalidOperationException>(() => service.Create(request));
+            Assert.Throws<InvalidOperationException>(() => service.Create(Guid.NewGuid(), request));
         }
 
         [Fact]
@@ -94,11 +92,10 @@ namespace TMAPI_UnitTests
             var request = new CreateTaskRequest
             {
                 Title = "My Task",
-                Description = "Description",
-                UserId = user.Id
+                Description = "Description"
             };
 
-            var result = service.Create(request);
+            var result = service.Create(user.Id, request);
 
             var savedTask = dbContext.Tasks.Single();
 
@@ -151,13 +148,30 @@ namespace TMAPI_UnitTests
         public void GetById_ShouldThrowException_WhenTaskDoesNotExist()
         {
             var dbContext = CreateDbContext();
+            var user = CreateUser(dbContext);
             var service = new TaskService(dbContext);
 
-            Assert.Throws<InvalidOperationException>(() => service.GetById(Guid.NewGuid()));
+            Assert.Throws<InvalidOperationException>(() =>
+                service.GetById(Guid.NewGuid(), user.Id));
         }
 
         [Fact]
-        public void GetById_ShouldReturnTask_WhenTaskExists()
+        public void GetById_ShouldThrowException_WhenTaskBelongsToAnotherUser()
+        {
+            var dbContext = CreateDbContext();
+
+            var owner = CreateUser(dbContext, "owner@test.de");
+            var otherUser = CreateUser(dbContext, "other@test.de");
+            var task = CreateTask(dbContext, owner.Id);
+
+            var service = new TaskService(dbContext);
+
+            Assert.Throws<UnauthorizedAccessException>(() =>
+                service.GetById(task.Id, otherUser.Id));
+        }
+
+        [Fact]
+        public void GetById_ShouldReturnTask_WhenTaskExistsAndBelongsToUser()
         {
             var dbContext = CreateDbContext();
             var user = CreateUser(dbContext);
@@ -165,7 +179,7 @@ namespace TMAPI_UnitTests
 
             var service = new TaskService(dbContext);
 
-            var result = service.GetById(task.Id);
+            var result = service.GetById(task.Id, user.Id);
 
             Assert.Equal(task.Id, result.Id);
             Assert.Equal(task.Title, result.Title);
@@ -190,13 +204,15 @@ namespace TMAPI_UnitTests
                 Status = TMAPI_Backend.Models.TaskStatus.Done
             };
 
-            Assert.Throws<ArgumentException>(() => service.Update(task.Id, request));
+            Assert.Throws<ArgumentException>(() =>
+                service.Update(task.Id, user.Id, request));
         }
 
         [Fact]
         public void Update_ShouldThrowException_WhenTaskDoesNotExist()
         {
             var dbContext = CreateDbContext();
+            var user = CreateUser(dbContext);
             var service = new TaskService(dbContext);
 
             var request = new UpdateTaskRequest
@@ -206,11 +222,34 @@ namespace TMAPI_UnitTests
                 Status = TMAPI_Backend.Models.TaskStatus.Done
             };
 
-            Assert.Throws<InvalidOperationException>(() => service.Update(Guid.NewGuid(), request));
+            Assert.Throws<InvalidOperationException>(() =>
+                service.Update(Guid.NewGuid(), user.Id, request));
         }
 
         [Fact]
-        public void Update_ShouldUpdateTask_WhenRequestIsValid()
+        public void Update_ShouldThrowException_WhenTaskBelongsToAnotherUser()
+        {
+            var dbContext = CreateDbContext();
+
+            var owner = CreateUser(dbContext, "owner@test.de");
+            var otherUser = CreateUser(dbContext, "other@test.de");
+            var task = CreateTask(dbContext, owner.Id);
+
+            var service = new TaskService(dbContext);
+
+            var request = new UpdateTaskRequest
+            {
+                Title = "Updated",
+                Description = "Updated",
+                Status = TMAPI_Backend.Models.TaskStatus.Done
+            };
+
+            Assert.Throws<UnauthorizedAccessException>(() =>
+                service.Update(task.Id, otherUser.Id, request));
+        }
+
+        [Fact]
+        public void Update_ShouldUpdateTask_WhenRequestIsValidAndTaskBelongsToUser()
         {
             var dbContext = CreateDbContext();
             var user = CreateUser(dbContext);
@@ -225,7 +264,7 @@ namespace TMAPI_UnitTests
                 Status = TMAPI_Backend.Models.TaskStatus.Done
             };
 
-            var result = service.Update(task.Id, request);
+            var result = service.Update(task.Id, user.Id, request);
 
             var savedTask = dbContext.Tasks.Single();
 
@@ -243,13 +282,30 @@ namespace TMAPI_UnitTests
         public void Delete_ShouldThrowException_WhenTaskDoesNotExist()
         {
             var dbContext = CreateDbContext();
+            var user = CreateUser(dbContext);
             var service = new TaskService(dbContext);
 
-            Assert.Throws<InvalidOperationException>(() => service.Delete(Guid.NewGuid()));
+            Assert.Throws<InvalidOperationException>(() =>
+                service.Delete(Guid.NewGuid(), user.Id));
         }
 
         [Fact]
-        public void Delete_ShouldRemoveTask_WhenTaskExists()
+        public void Delete_ShouldThrowException_WhenTaskBelongsToAnotherUser()
+        {
+            var dbContext = CreateDbContext();
+
+            var owner = CreateUser(dbContext, "owner@test.de");
+            var otherUser = CreateUser(dbContext, "other@test.de");
+            var task = CreateTask(dbContext, owner.Id);
+
+            var service = new TaskService(dbContext);
+
+            Assert.Throws<UnauthorizedAccessException>(() =>
+                service.Delete(task.Id, otherUser.Id));
+        }
+
+        [Fact]
+        public void Delete_ShouldRemoveTask_WhenTaskExistsAndBelongsToUser()
         {
             var dbContext = CreateDbContext();
             var user = CreateUser(dbContext);
@@ -257,7 +313,7 @@ namespace TMAPI_UnitTests
 
             var service = new TaskService(dbContext);
 
-            service.Delete(task.Id);
+            service.Delete(task.Id, user.Id);
 
             Assert.Empty(dbContext.Tasks);
         }
