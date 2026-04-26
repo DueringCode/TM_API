@@ -13,11 +13,12 @@ namespace TMAPI_Backend
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerDocumentation();
 
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<TaskService>();
             builder.Services.AddScoped<JwtService>();
+
 
             builder.Services.AddJwtAuthentication(builder.Configuration);
 

@@ -42,9 +42,9 @@ namespace TMAPI_Backend.Controllers
             {
                 return NotFound(new { message = exception.Message });
             }
-            catch (UnauthorizedAccessException exception)
+            catch (UnauthorizedAccessException)
             {
-                return Forbid(exception.Message);
+                return Forbid();
             }
         }
 
@@ -88,9 +88,9 @@ namespace TMAPI_Backend.Controllers
             {
                 return NotFound(new { message = exception.Message });
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException exception)
             {
-                return Forbid();
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = exception.Message });
             }
         }
 
