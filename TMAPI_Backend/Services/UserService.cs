@@ -7,10 +7,12 @@ namespace TMAPI_Backend.Services
     public class UserService
     {
         private readonly AppDbContext _dbContext;
+        private readonly JwtService _jwtService;
 
-        public UserService(AppDbContext dbContext)
+        public UserService(AppDbContext dbContext, JwtService jwtService)
         {
             _dbContext = dbContext;
+            _jwtService = jwtService;
         }
 
         public UserResponse Register(RegisterUserRequest request)
@@ -49,7 +51,7 @@ namespace TMAPI_Backend.Services
             };
         }
 
-        public UserResponse Login(LoginUserRequest request)
+        public LoginResponse Login(LoginUserRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Email))
             {
@@ -75,10 +77,13 @@ namespace TMAPI_Backend.Services
                 throw new InvalidOperationException("Invalid email or password.");
             }
 
-            return new UserResponse
+            string token = _jwtService.CreateToken(user);
+
+            return new LoginResponse
             {
                 Id = user.Id,
-                Email = user.Email
+                Email = user.Email,
+                Token = token
             };
         }
     }

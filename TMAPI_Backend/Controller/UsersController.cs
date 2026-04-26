@@ -34,11 +34,11 @@ namespace TMAPI_Backend.Controllers
         }
 
         [HttpPost("login")]
-        public ActionResult<UserResponse> Login(LoginUserRequest request)
+        public ActionResult<LoginResponse> Login(LoginUserRequest request)
         {
             try
             {
-                UserResponse user = _userService.Login(request);
+                LoginResponse user = _userService.Login(request);
                 return Ok(user);
             }
             catch (ArgumentException exception)

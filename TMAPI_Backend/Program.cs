@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TMAPI_Backend.Configuration;
 using TMAPI_Backend.Data;
 using TMAPI_Backend.Services;
 
@@ -15,6 +16,9 @@ namespace TMAPI_Backend
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<TaskService>();
+           
+            builder.Services.AddScoped<JwtService>();
+            builder.Services.AddJwtAuthentication(builder.Configuration);
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -28,6 +32,7 @@ namespace TMAPI_Backend
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 
