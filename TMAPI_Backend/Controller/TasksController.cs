@@ -19,12 +19,13 @@ namespace TMAPI_Backend.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<TaskResponse>> GetAllByUser([FromQuery] Guid userId)
+        public ActionResult<List<TaskResponse>> GetAll()
         {
-            Guid currentUserId = GetCurrentUserId();
+            Guid userId = GetCurrentUserId();
 
-            // nur zu Testzwecken:
-            return Ok(new { userIdFromToken = currentUserId });
+            var tasks = _taskService.GetAllByUser(userId);
+
+            return Ok(tasks);
         }
 
         [HttpGet("{id}")]
