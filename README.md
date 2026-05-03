@@ -16,6 +16,8 @@ Focus on clean backend architecture, maintainable code, and structured developme
 - PostgreSQL
 - xUnit
 - JWT (JSON Web Tokens)
+- Docker
+- Docker Compose
 
 ---
 
@@ -30,6 +32,7 @@ Focus on clean backend architecture, maintainable code, and structured developme
 - Prevention of duplicate users
 - Data persistence with PostgreSQL
 - Unit tests for business logic
+- Containerized application setup with Docker
 
 ---
 
@@ -59,45 +62,13 @@ Authorization: Bearer YOUR_TOKEN
 
 ---
 
-## Getting Started
+## Run with Docker (Recommended)
 
 ### Prerequisites
 
-- .NET SDK
-- PostgreSQL
+- Docker Desktop
 
----
+### Start application
 
-### Setup
-
-1. Configure your database connection in `appsettings.json`:
-
-"ConnectionStrings": {
-  "DefaultConnection": "Host=localhost;Port=5432;Database=tmapi_db;Username=postgres;Password=YOUR_PASSWORD"
-}
-
-2. Apply migrations:
-
-dotnet ef database update
-
-3. Run the application:
-
-dotnet run
-
----
-
-## Testing
-
-Run unit tests:
-
-dotnet test
-
----
-
-## Project Structure
-
-- Controllers → API endpoints  
-- Services → business logic  
-- Data → database context  
-- DTOs → request/response models  
-- Models → domain entities  
+```bash
+docker compose up --build
