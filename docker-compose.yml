@@ -11,5 +11,17 @@ services:
     volumes:
       - tmapi_postgres_data:/var/lib/postgresql/data
 
+  api:
+    build:
+      context: ./TMAPI_Backend
+    container_name: tmapi-api
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    depends_on:
+      - postgres
+
 volumes:
   tmapi_postgres_data:
