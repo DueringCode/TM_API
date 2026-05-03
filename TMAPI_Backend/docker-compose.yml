@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: tmapi-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: tmapi_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - tmapi_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  tmapi_postgres_data:
